@@ -2193,26 +2193,27 @@ Character patterns (font)       1000-17FF               (See note B)
 //=====================================
 
 #define START_BIOS_CALL \
-    push ix\
-   	ld ix,#0\
+	push ix\
+	ld ix,#0\
 	add ix,sp
 
 #define END_BIOS_CALL \
-    pop ix\
-    ret
+	pop ix\
+	ret
 
 #define PUSH_ALL_REGS \
-    push af\
-    push bc\
-    push de\
-    push hl\
-    push iy
+	push af\
+	push bc\
+	push de\
+	push hl\
+	push iy
 
 #define POP_ALL_REGS \
-    pop af\
-    pop bc\
-    pop de\
-    pop hl\
-    pop iy
+	pop iy\
+	pop hl\
+	pop de\
+	pop bc\
+	pop af
+
 
 #endif  // __MSX_CONST_H__
