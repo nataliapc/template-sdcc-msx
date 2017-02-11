@@ -1,5 +1,5 @@
 # template-sdcc-msx
-This is a template to start develping of MSX programs or games, including several startups to create many kind of ROM and MSX-DOS files.
+This is a template to start develping MSX software, including several startups to create many kind of ROM and MSX-DOS files.
 
 Current startup list:
 * ROM 16kb (init: 0x4000)
