@@ -174,21 +174,21 @@
 //    Output: NONE
 // Registers: AF, BC
 // Available: MSX
-#define BIOS_DISSCR		0x0041	//
+#define BIOS_DISSCR		0x0041
 
 //  Function: Enable Screen Display
 //     Input: NONE
 //    Output: NONE
 // Registers: ALL
 // Available: MSX
-#define BIOS_ENASCR		0x0044	//
+#define BIOS_ENASCR		0x0044
 
 //  Function: Write Data To VDP Register
 //     Input: C = VDP Register Number (0..27, 32..46), B = Data To Write
 //    Output: NONE
 // Registers: AF, BC
 // Available: MSX (Call SUB-ROM Internally In Screen Modes 5..8)
-#define BIOS_WRTVDP		0x0047	//
+#define BIOS_WRTVDP		0x0047
 
 //  Function: Read Data From VRAM (14-Bit Address: $0000..$3FFF) (TMS9918)
 //            Only Lowest 14-Bits Of VRAM Address Are Valid
@@ -237,7 +237,7 @@
 //    Output: NONE
 // Registers: AF, BC
 // Available: MSX (Do Not Call SUB-ROM While Screen Modes 4..8 Are Changed)
-#define BIOS_FILVRM		0x0056	//Fill VRAM with a value
+#define BIOS_FILVRM		0x0056
 
 //  Function: Block Transfer From VRAM To Memory
 //     Input: HL = VRAM Source Address, DE = Memory Destination Address, BC = Data Length
@@ -245,7 +245,7 @@
 //    Output: NONE
 // Registers: ALL
 // Available: MSX (Do Not Call SUB-ROM While Screen Modes 4..8 Are Changed)
-#define BIOS_LDIRMV		0x0059	//
+#define BIOS_LDIRMV		0x0059
 
 //  Function: Block Transfer From Memory To VRAM
 //     Input: HL = Memory Source Address, DE = VRAM Destination Address, BC = Data Length
@@ -253,7 +253,7 @@
 //    Output: NONE
 // Registers: ALL
 // Available: MSX (Do Not Call SUB-ROM While Screen Modes 4..8 Are Changed)
-#define BIOS_LDIRVM		0x005c	//Block transfer from memory to VRAM
+#define BIOS_LDIRVM		0x005c
 
 //  Function: Change Screen Mode
 //            Palette Is Not Initialised
@@ -262,7 +262,7 @@
 //    Output: NONE
 // Registers: ALL
 // Available: MSX (Always Call SUB-ROM)
-#define BIOS_CHGMOD		0x005f	//Switches to given screenmode
+#define BIOS_CHGMOD		0x005f
 
 //  Function: Change Screen Color
 //     Input: A = Screen Mode
@@ -272,7 +272,7 @@
 //    Output: NONE
 // Registers: ALL
 // Available: MSX
-#define BIOS_CHGCLR		0x0062	//Changes the screencolors
+#define BIOS_CHGCLR		0x0062
 
 //  Function: Execute NMI (Non-Maskable Interrupt) Handling Routine
 //     Input: NONE
@@ -561,7 +561,7 @@
 //    Output: NONE
 // Registers: AF, BC, DE
 // Available: MSX (Always Call SUB-ROM)
-#define BIOS_CLS		0x00c3	//
+#define BIOS_CLS		0x00c3
 
 //  Function: Move Cursor
 //     Input: H = X-Position Of Cursor, L = Y-Position Of Cursor
@@ -1997,7 +1997,7 @@
 #define ADDR_SLMIR2		0xfcc7	//Slot 2: Mirror Of Secondary Slot Selection Register (1B/RW)
 #define ADDR_SLMIR3		0xfcc8	//Slot 3: Mirror Of Secondary Slot Selection Register (1B/RW)
 
-#define ADDR_RG8SAV		0xffe7	//Mirror Of VDP Register  8 (Basic:  VDP(9)) (1B/RW)
+#define ADDR_RG8SAV		0xffe7	//Mirror Of VDP Register  8 (Basic: VDP(9))  (1B/RW)
 #define ADDR_RG9SAV		0xffe8	//Mirror Of VDP Register  9 (Basic: VDP(10)) (1B/RW)
 #define ADDR_RG10SA		0xffe9	//Mirror Of VDP Register 10 (Basic: VDP(11)) (1B/RW)
 #define ADDR_RG11SA		0xffea	//Mirror Of VDP Register 11 (Basic: VDP(12)) (1B/RW)
@@ -2030,6 +2030,70 @@
 
 
 //=====================================
+// VDP Ports  
+//=====================================
+// MSX1
+#define VDPVRAM   0x98  //VRAM Data (Read/Write)
+#define VDPSTATUS 0x99  //VDP Status Registers
+/*
+	Control Register 0: (R/W) All MSX [VDP(0) see ADDR_RG0SAV]
+     7 6 5 4 3 2 1 0
+     | | | | | | | +--- EV  External VDP input: #1 when enabled. Always #0 on MSX2/2+
+     | | | | | | +----- M3  Screen mode flag. #1 using SCREEN 2,5,7,8,10,12
+     | | | | | +------- M4  Screen mode flag. #1 using SCREEN 4,5,8,10,12 & TXT80. Always #0 on MSX1
+     | | | | +--------- M5  Screen mode flag. #1 using SCREEN 6,8,10,12. Always #0 on MSX1
+     | | | +----------- IE1 Horizontal Retrace interrupt. #1 enabled. Always #0 on MSX1
+     | | +------------- IE2 Light Pen interrupt. #1 enabled. Always #0 on MSX1/2+
+     | +--------------- DG  Digitized mode. Sets the color bus to the input (#1) or output mode (#0). Always #0 on MSX1
+     +----------------- Always #0
+
+	Control Register 1: (R/W) All MSX [VDP(1) see ADDR_RG1SAV]
+     7 6 5 4 3 2 1 0
+     | | | | | | | +--- MAG Sprite enlarging. #1 enables enlarged sprites. #0 disabled
+     | | | | | | +----- SI  Sprite size. #0:8x8. #1:16x16
+     | | | | | +------- Always #0
+     | | | | +--------- M2  Screen mode flag. #1 using SCREEN 3
+     | | | +----------- M1  Screen mode flag. #1 using SCREEN TXT40 or TXT80
+     | | +------------- IE0 Vertical Retrace interrupt. #1:enabled #0:disabled
+     | +--------------- BL  Blank screen. #1:screen display is enabled #0:disabled (no VRAM read operations are performed)
+     +----------------- 4/16K VRAM mode selection. #1:4kB VRAM mode #0:16kB. Always #0 on MSX2/2+
+
+	Control Register 8: (R/W) MSX2/2+ [VDP(9)]
+     7 6 5 4 3 2 1 0
+     | | | | | | | +--- BW  Black/White output. #1:32 tones grayscale #0:color output
+     | | | | | | +----- SPD Sprite Disable. #1 disable sprites and related VRAM reads. Default #1 for SCREEN 9 and KANJI screens.
+     | | | | | +------- Always #0
+     | | | | +--------- VR  VRAM type. #1:VRAM 64K x 1bit or 64K x 4bits
+     | | | |                           #0:VRAM 16K x 1bit or 16K x 4bits
+     | | | +----------- CB  Color Bus. #1:color bus in input mode #0:output mode
+     | | +------------- TP  Transparent/Palette. For machines w/video input. #1:color 0 from color palette #0:color 0 transparent.
+     | +--------------- LP  Light Pen. #1:Light Pen enabled. Always #0 on MSX2+
+     +----------------- MS  Mouse. #1:color bus in input mode & mouse enabled. #0:color bus in output mode & mouse disabled. Always #0 on MSX2+
+
+	Control Register 9: (R/W) MSX2/2+ [VDP(10)]
+     7 6 5-4 3 2 1 0
+     | |  |  | | | +--- DC  Dot Clock. For machines w/video input. #1:*DLCLK in input mode #0:*DLCLK in output mode 
+     | |  |  | | +----- NT 	PAL/NTSC. Only for RGB outputs. #1:PAL (313 lines 50Hz) #0:NTSC (262 lines 60Hz)
+     | |  |  | +------- EO  Even/Odd screen. #1 enable two graphic screens interchangeably by even/odd. #0 display same graphic for even/odd
+     | |  |  +--------- IL  Interlace. #1:interlace mode enabled #0:disabled
+     | |  +------------ S1-S0 Simultaneous mode. Bits that allow select simultaneous mode
+     | |                                         #00:normal #01:ext.synch #10:ext.video
+     | +--------------- Always #0
+     +----------------- LN  Line. #1:vertical dot count set to 212 (26,5 lines on SCREEN TXT80 width 41-80)
+                                  #0:vertical dot count is set to 192
+*/
+
+
+//=====================================
+// screen modes
+//=====================================
+#define TXT40  0x00  // text mode       (sc0)
+#define TXT32  0x01  // graphics 1 mode (sc1)
+#define GRAPH1 0x02  // graphics 2 mode (sc2)
+#define GRAPH2 0x03  // multicolor mode (sc3)
+
+
+//=====================================
 // MSX Colors
 //=====================================
 
@@ -2055,57 +2119,78 @@
 // MSX SCREEN BASE Values
 //=====================================
 
+#define BASE0			ADDR_TXTNAM	//BASE(0) Text SCREEN 0 Name Table (2B/RW)
+#define BASE1			ADDR_TXTCOL	//BASE(1) Text SCREEN 0 Color Table (2B/RW)
+#define BASE2			ADDR_TXTCGP	//BASE(2) Text SCREEN 0 Character Pattern Table (2B/RW)
+#define BASE3			ADDR_TXTATR	//BASE(3) Text SCREEN 0 Sprite Attribute Table (2B/RW)
+#define BASE4			ADDR_TXTPAT	//BASE(4) Text SCREEN 0 Sprite Pattern Table (2B/RW)
+#define BASE5			ADDR_T32NAM	//BASE(5) Text SCREEN 1 Name Table (2B/RW)
+#define BASE6			ADDR_T32COL	//BASE(6) Text SCREEN 1 Color Table (2B/RW)
+#define BASE7			ADDR_T32CGP	//BASE(7) Text SCREEN 1 Character Pattern Table (2B/RW)
+#define BASE8			ADDR_T32ATR	//BASE(8) Text SCREEN 1 Sprite Attribute Table (2B/RW)
+#define BASE9			ADDR_T32PAT	//BASE(9) Text SCREEN 1 Sprite Pattern Table (2B/RW)
+#define BASE10			ADDR_GRPNAM	//BASE(10) Graphics SCREEN 2 Name Table (2B/RW)
+#define BASE11			ADDR_GRPCOL	//BASE(11) Graphics SCREEN 2 Color Table (2B/RW)
+#define BASE12			ADDR_GRPCGP	//BASE(12) Graphics SCREEN 2 Character Pattern Table (2B/RW)
+#define BASE13			ADDR_GRPATR	//BASE(13) Graphics SCREEN 2 Sprite Attribute Table (2B/RW)
+#define BASE14			ADDR_GRPPAT	//BASE(14) Graphics SCREEN 2 Sprite Pattern Table (2B/RW)
+#define BASE15			ADDR_MLTNAM	//BASE(15) MultiColor SCREEN 3 Name Table (2B/RW)
+#define BASE16			ADDR_MLTCOL	//BASE(16) MultiColor SCREEN 3 Color Table (2B/RW)
+#define BASE17			ADDR_MLTCGP	//BASE(17) MultiColor SCREEN 3 Character Pattern Table (2B/RW)
+#define BASE18			ADDR_MLTATR	//BASE(18) MultiColor SCREEN 3 Sprite Attribute Table (2B/RW)
+#define BASE19			ADDR_MLTPAT	//BASE(19) MultiColor SCREEN 3 Sprite Pattern Table (2B/RW)
+
 /*
 SCREEN 0 (Text mode, 40 column):
-Name table (char positions)     0000-03BF       (See note A)
-Character patterns (font)       0800-0FFF       (See note B)
+Name table (char positions)     0000-03BF
+Character patterns (font)       0800-0FFF
 */
-#define SCR0_CHARPOS			0x0000
-#define SCR0_CHARPATTERN		0x0800
+#define SCR0_CHARPOS			0x0000	//BASE(0)
+#define SCR0_CHARPATTERN		0x0800	//BASE(2)
 
 /*
 SCREEN 1 (coloured text mode, 32 column):
-Character patterns (font)       0000-07FF       (See note B)
-Name table (char positions)     1800-1AFF       (See note A)
-Sprite attribute table          1B00-1B7F       (See note C)
-Characters colour table (8/byte)2000-201F       (See note F)
-Sprite character patterns       3800-3FFF       (See note D)
+Character patterns (font)       0000-07FF
+Name table (char positions)     1800-1AFF
+Sprite attribute table          1B00-1B7F
+Characters colour table (8/byte)2000-201F
+Sprite character patterns       3800-3FFF
 */
-#define SCR1_CHARPATTERN		0x0000
-#define SCR1_CHARPOS			0x1800
-#define SCR1_SPRATTRIB			0x1b00
-#define SCR1_CHARCOLOR			0x2000
-#define SCR1_SPRPATTERN			0x3800
+#define SCR1_CHARPATTERN		0x0000	//BASE(7)
+#define SCR1_CHARPOS			0x1800	//BASE(5)
+#define SCR1_SPRATTRIB			0x1b00	//BASE(8)
+#define SCR1_CHARCOLOR			0x2000	//BASE(6)
+#define SCR1_SPRPATTERN			0x3800	//BASE(9)
 
 /*
 SCREEN 2 (256*192 Graphics mode):
-Character patterns              0000-17FF       (See note B)
+Character patterns              0000-17FF
 Name table (char positions)     1800-1AFF
-Sprite attribute table          1B00-1B7F       (See note C)
-PixelByte colour table          2000-37FF       (See note E)
-Sprite character patterns       3800-3FFF       (See note D)
+Sprite attribute table          1B00-1B7F
+PixelByte colour table          2000-37FF
+Sprite character patterns       3800-3FFF
 */
-#define SCR2_CHARPATTERN		0x0000
-#define SCR2_CHARPOS			0x1800
-#define SCR2_SPRATTRIB			0x1b00
-#define SCR2_PIXELBYTECOLOR		0x2000
-#define SCR2_SPRPATTERN			0x3800
+#define SCR2_CHARPATTERN		0x0000	//BASE(12)
+#define SCR2_CHARPOS			0x1800	//BASE(10)
+#define SCR2_SPRATTRIB			0x1b00	//BASE(13)
+#define SCR2_PIXELCOLOR			0x2000	//BASE(11)
+#define SCR2_SPRPATTERN			0x3800	//BASE(14)
 
 /*
 SCREEN 3 (4x4 pixel blocks/Multicolour mode):
 Character colour patterns       0000-05FF
 Name table (char positions)     0800-0AFF
-Sprite attribute table          1B00-1B7F       (See note C)
-Sprite character patterns       3800-3FFF       (See note D)
+Sprite attribute table          1B00-1B7F
+Sprite character patterns       3800-3FFF
 */
-#define SCR3_CHARCOLOR			0x0000
-#define SCR3_CHARPOS			0x0800
-#define SCR3_SPRATTRIB			0x1b00
-#define SCR3_SPRPATTERN			0x3800
+#define SCR3_CHARCOLOR			0x0000	//BASE(16)
+#define SCR3_CHARPOS			0x0800	//BASE(15)
+#define SCR3_SPRATTRIB			0x1b00	//BASE(18)
+#define SCR3_SPRPATTERN			0x3800	//BASE(19)
 
 /*
 SCREEN 4 (256*192 Graphics mode with multicolour sprites):
-Character patterns              0000-17FF       (See note B)
+Character patterns              0000-17FF
 Name table (char positions)     1800-1AFF
 Sprite colours                  1C00-1DFF
 Sprite attribute table          1E00-1E7F
@@ -2165,9 +2250,9 @@ Palette                         FA80-FA9F
 
 /*
 SCREEN 8 (256*212 Graphic mode, 256 colours):
-RGB Matrix                      0000-D3FF               (See note H)
+RGB Matrix                      0000-D3FF
 Sprite character patterns       F000-F7FF
-Sprite colours                  F800-F9FF               (See note I)
+Sprite colours                  F800-F9FF
 Sprite attribute table          FA00-FA7F
 Palette                         FA80-FA9F
 */
@@ -2189,15 +2274,15 @@ Character patterns (font)       1000-17FF               (See note B)
 
 
 //=====================================
-// BIOS Useful macros
+// ASM Useful macros
 //=====================================
 
-#define START_BIOS_CALL \
+#define START_FUNCTION \
 	push ix\
 	ld ix,#0\
 	add ix,sp
 
-#define END_BIOS_CALL \
+#define END_FUNCTION \
 	pop ix\
 	ret
 
@@ -2214,6 +2299,12 @@ Character patterns (font)       1000-17FF               (See note B)
 	pop de\
 	pop bc\
 	pop af
+
+#ifndef  __DI_EI__
+#define __DI_EI__
+#define EI __asm ei __endasm;
+#define DI __asm di __endasm;
+#endif
 
 
 #endif  // __MSX_CONST_H__
