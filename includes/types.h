@@ -17,6 +17,18 @@ typedef signed long int32_t;
 typedef unsigned long uint32_t;
 typedef float float32;
 
+#ifndef byte
+typedef uint8_t  byte;
+#endif
+#ifndef word
+typedef uint16_t word;
+#endif
+#ifndef bool
+typedef uint8_t bool;
+#define true  ((bool) 1)
+#define false ((bool) 0)
+#endif
+
 union word_byte {
 	uint16_t w;
 	struct {
